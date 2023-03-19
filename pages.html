@@ -1,0 +1,80 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SSE Demo</title>
+  </head>
+  <body>
+    <a href="/pages.html">PAGES</a>
+    <h1>Server Sent Events Demo</h1>
+    <div id="header">
+      <h2>Pages</h2>
+      <ul></ul>
+    </div>
+    <div id="container"></div>
+    <script>
+      // Create an EventSource object with the server URL
+      const evtSource = new EventSource("http://localhost:3000/pages");
+      const shownTitles = [];
+
+      // Add an event listener for html events
+      evtSource.addEventListener("html", (e) => {
+        // Parse the event data as JSON
+        const html = JSON.parse(e.data);
+        console.log(html);
+        // Get the title, htmlData and cssData from the html object
+        html.results.forEach((result) => {
+         const { title, htmlData, cssData } = result;
+
+        console.log(title, htmlData, cssData);
+        // Get a reference to the document body and header elements
+        if (!shownTitles.includes(title)) {
+          shownTitles.push(title);
+          const body = document.body;
+          const header = document.getElementById("header");
+          // Create a new iframe element and append it to the body element
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+
+          body.appendChild(iframe);
+          const li = document.createElement("li");
+          li.textContent = title;
+          header.appendChild(li);
+          li.addEventListener("click", () => {
+            // Toggle the iframe's visibility
+            if (iframe.style.display === "none") {
+              iframe.style.display = "block";
+              //Set iframe height to 100%
+              iframe.style.height = "80%";
+              //Set iframe width to 100%
+              iframe.style.width = "100%";
+              iframe.style.position = "absolute";
+              iframe.style.top = "40";
+              iframe.style.left = "0";
+              iframe.style.border = "none";
+
+
+            } else {
+              iframe.style.display = "none";
+            }
+          });
+          // Get a reference to the iframe's document object
+          const iframeDoc =
+            iframe.contentDocument || iframe.contentWindow.document;
+
+          // Write the htmlData and cssData into the iframe's document object
+          iframeDoc.open();
+          iframeDoc.write(`
+        <style>
+          ${cssData}
+        </style>
+        ${htmlData}
+      `);
+          iframeDoc.close();
+        }
+        });
+      });
+    </script>
+  </body>
+</html>
