@@ -1,0 +1,23 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SSE Demo</title>
+</head>
+<body>
+  <h1>Server Sent Events Demo</h1>
+  <div id="container"></div>
+  <script>
+    const evtSource = new EventSource("http://localhost:3000/events");
+    const container = document.getElementById("container");
+
+    evtSource.onmessage = function(event) {
+      // Display the received data
+      const p = document.createElement("p");
+      p.textContent = event.data;
+      container.appendChild(p);
+    };
+  </script>
+</body>
+</html>
